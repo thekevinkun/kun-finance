@@ -6,6 +6,8 @@ import { notFound } from "next/navigation";
 import { locales, type Locale } from "@/i18n/config";
 import "../globals.css";
 
+import { LanguageToggle } from "@/components";
+
 // 1. Initialize Inter (Sans-serif)
 const inter = Inter({
   subsets: ["latin"],
@@ -32,7 +34,7 @@ export default async function LocaleLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+  params: Promise<{ locale: Locale }>;
 }) {
   const { locale } = await params;
 
@@ -47,11 +49,12 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className={`${inter.variable} ${ibmPlexMono.variable}`}>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {/* Makes translations available to any client component below
             via the useTranslations() hook, without prop-drilling. */}
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
+          <LanguageToggle locale={locale} />
         </NextIntlClientProvider>
       </body>
     </html>

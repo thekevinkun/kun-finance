@@ -1,0 +1,9 @@
+{
+  "name": "kun-finance",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ]
+}

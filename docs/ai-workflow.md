@@ -375,6 +375,14 @@ Claude can explain the concept, then you apply it.
   - **Reason:** Consistent branding across all Kun projects
   - **Trade-off:** None
 
+### Session 2 — Server Setup
+- **Decision:** Pin Prisma to 7.9.0 (not latest)
+  - **Reason:** `prisma@latest` currently resolves to 8.0.0-rc.12, a release-candidate 
+    Platform CLI with breaking changes (schema `url` removed, config format changed, 
+    auto-installs AI agent skill docs). 7.9.0 is the current stable ORM release.
+  - **Trade-off:** Will need a deliberate upgrade later once Prisma 8 is stable and 
+    documented, rather than riding `latest`.
+    
 ---
 
 ## Final Note

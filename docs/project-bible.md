@@ -35,8 +35,8 @@
 - **Runtime:** Node.js 20+
 - **Server:** Express v5
 - **Language:** TypeScript
-- **Database:** PostgreSQL (Neon or local)
-- **ORM:** Prisma 6
+- **Database:** PostgreSQL (Supabase, pooled connection)
+- **ORM:** Prisma 7.9.0 (pinned — see Known Constraints)
 - **Validation:** Zod v4
 - **Auth:** Custom JWT (email + password + refresh tokens)
 - **Rate limiting:** Upstash Redis
@@ -615,7 +615,8 @@ python /ml/predict.py --business demo_restaurant
 ```
 NODE_ENV=development
 PORT=5000
-DATABASE_URL=postgresql://user:pass@localhost:5432/kun_finance
+DATABASE_URL=postgresql://user:pass@localhost:6543/kun_finance
+DIRECT_URL=postgresql://user:pass@localhost:5432/kun_finance
 JWT_SECRET=<64-char-random-string>
 
 KUN_FINANCE_AI_MODE=mock
@@ -669,6 +670,10 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...  (if later added)
 - Don't mix authenticated + unauthenticated logic (separate routes)
 - Don't store models in database (use .pkl files + S3)
 
+### Tooling Notes
+- Prisma pinned to 7.9.0. `prisma@latest` resolves to 8.0.0-rc.12 (Platform CLI beta) — 
+  do not upgrade until 8.x is stable and documented.
+  
 ---
 
 ## 10. Reference Documents

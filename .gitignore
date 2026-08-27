@@ -33,3 +33,10 @@ Thumbs.db
 
 # --- Logs ---
 *.log
+
+# --- Agents / AI ---
+.agents
+.claude
+.cursor
+.windsurf
+.devin

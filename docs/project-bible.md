@@ -562,7 +562,7 @@ return res.json(result.data);
 - **Environment variables:** SCREAMING_SNAKE_CASE
 
 ### Error Handling
-- No throwing to callers; always return Result<T>
+- No throwing to callers; always return Result<`T`>
 - Log all errors with Winston (PII-scrubbed)
 - Client receives: `{ ok: false, error: "User-friendly message" }`
 - Internal: log full stack trace for debugging

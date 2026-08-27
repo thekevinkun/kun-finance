@@ -9,6 +9,25 @@
 
 ## Session Notes (Latest at Top)
 
+### Session 2 — Client Scaffold + i18n
+**Date:** August 27, 2026
+**Status:** ✅ Complete
+
+**Accomplished:**
+- Next.js 16 client scaffolded (TypeScript, Tailwind v4, src/ dir, App Router)
+- Design tokens reconciled between bible and mockups (colors, fonts, spacing)
+- npm workspaces set up with @kun-finance/shared package (Result<`T`> type)
+- next-intl i18n fully wired: proxy.ts, locale routing, cookie persistence
+- LanguageToggle component built using next-intl's navigation APIs
+- Placeholder pages for all 4 routes, both locales confirmed working
+
+**Decisions made:**
+- Design token naming: ink/ink-muted (not text-*) and line (not border) to avoid Tailwind utility stutter
+- Shared types via npm workspaces (not duplication) — revisit if Prisma types tempt duplication later
+- next-intl's own useRouter/usePathname (not next/navigation) required for cookie-based locale persistence
+
+**What's next:** Express server scaffold (Phase 1 checklist, server section)
+
 ### Session 1 — Planning & Design Lockdown
 **Date:** August 27, 2026
 **Status:** ✅ Complete
@@ -64,30 +83,30 @@
 
 **Checklist:**
 
-- [ ] GitHub repo created + cloned locally
-- [ ] Folder structure created:
-  - [ ] `/client` (Next.js)
-  - [ ] `/server` (Express)
-  - [ ] `/ml` (Python)
-  - [ ] `/docs` (markdown docs)
-- [ ] **Client (Next.js 16):**
-  - [ ] `npm create next-app@latest` with TypeScript, Tailwind, App Router
-  - [ ] `.env.local` template created
-  - [ ] `tsconfig.json` configured (strict mode)
-  - [ ] Tailwind config extended with design tokens (colors, spacing)
-  - [ ] Global styles (`globals.css`) with CSS variables
-  - [ ] `src/types/` folder for shared types
-  - [ ] `src/lib/axios.ts` configured (base URL, auth headers)
-  - [ ] **i18n Setup (next-intl):**
-    - [ ] `npm install next-intl`
-    - [ ] `i18n.config.ts` created (language config: default = 'id')
-    - [ ] Middleware configured (`src/middleware.ts`) for language routing
-    - [ ] Folder structure created: `/public/locales/id/` and `/public/locales/en/`
-    - [ ] Translation files created: `common.json`, `dashboard.json`, `forecast.json`, `transactions.json`, `reports.json`, `errors.json`
-    - [ ] Language switcher component created (`LanguageToggle.tsx`)
-    - [ ] Routes wrapped with i18n provider
-    - [ ] Test: visit `/id/dashboard` and `/en/dashboard` (both work)
-  - [ ] Placeholder pages: `/[locale]/dashboard`, `/[locale]/forecast`, `/[locale]/transactions`, `/[locale]/reports`
+- [x] GitHub repo created + cloned locally
+- [x] Folder structure created:
+  - [x] `/client` (Next.js)
+  - [x] `/server` (Express)
+  - [x] `/ml` (Python)
+  - [x] `/docs` (markdown docs)
+- [x] **Client (Next.js 16):**
+  - [x] `npm create next-app@latest` with TypeScript, Tailwind, App Router
+  - [x] `.env.local` template created
+  - [x] `tsconfig.json` configured (strict mode)
+  - [x] Tailwind config extended with design tokens (colors, spacing)
+  - [x] Global styles (`globals.css`) with CSS variables
+  - [x]  `src/types/` folder for shared types
+  - [x] `src/lib/axios.ts` configured (base URL, auth headers)
+  - [x] **i18n Setup (next-intl):**
+    - [x] `npm install next-intl`
+    - [x] `i18n.config.ts` created (language config: default = 'id')
+    - [x] Middleware configured (`src/middleware.ts`) for language routing
+    - [x] Folder structure created: `/public/locales/id/` and `/public/locales/en/`
+    - [x] Translation files created: `common.json`, `dashboard.json`, `forecast.json`, `transactions.json`, `reports.json`, `errors.json`
+    - [x] Language switcher component created (`LanguageToggle.tsx`)
+    - [x] Routes wrapped with i18n provider
+    - [x] Test: visit `/id/dashboard` and `/en/dashboard` (both work)
+  - [x] Placeholder pages: `/[locale]/dashboard`, `/[locale]/forecast`, `/[locale]/transactions`, `/[locale]/reports`
   - [ ] Git workflow setup (main + feature branches)
 - [ ] **Server (Express):**
   - [ ] `npm init -y` + TypeScript setup

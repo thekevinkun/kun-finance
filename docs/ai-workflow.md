@@ -111,7 +111,7 @@ Every time you start a new piece of code, Claude will give you a checklist like 
 - [ ] Do you understand the user input? (What can go wrong?)
 - [ ] Is this a service function or a route handler? (Where does business logic live?)
 - [ ] Do you need to validate input with Zod? (What are valid values?)
-- [ ] How will you handle errors? (Result<T> pattern?)
+- [ ] How will you handle errors? (Result<`T`> pattern?)
 - [ ] Where should this data be logged? (What should be visible? What should be scrubbed?)
 - [ ] Is there a tenant isolation concern here? (Does query filter by business_id?)
 - [ ] Are there any security implications? (Rate limiting? Auth check?)
@@ -127,7 +127,7 @@ Every time you start a new piece of code, Claude will give you a checklist like 
 - [ ] Are there rate limits needed?
 
 **For services:**
-- [ ] Does the function return Result<T>?
+- [ ] Does the function return Result<`T`>?
 - [ ] Are errors logged with Winston (PII-scrubbed)?
 - [ ] Does it query correctly (with indexes, specific columns)?
 - [ ] Could this fail in production? (Handle edge cases)
@@ -189,7 +189,7 @@ When Claude reviews your code, it looks for:
 
 Before submitting to Claude:
 - ❌ Can you build/compile? (`npm run build`, `python -m py_compile`)
-- ✅ Does the code follow the pattern? (services return Result<T>, routes use auth, etc.)
+- ✅ Does the code follow the pattern? (services return Result<`T`>, routes use auth, etc.)
 - ✅ Are there obvious bugs? (undefined variables, wrong types, logic errors?)
 - ✅ Did you test manually? (if frontend: did you click it? if API: did you curl it?)
 
@@ -368,7 +368,7 @@ Claude can explain the concept, then you apply it.
   - **Trade-off:** ~2-3 days extra setup, but valuable learning + recruiter signal
 
 - **Decision:** App name "Kun Finance" (part of Kun projects ecosystem)
-  - **Reason:** Continuity with Kundesk, Carikopi, Padel Court; shared brand + assistant name "KUN"
+  - **Reason:** Continuity with Kundesk and Kun Bookshop; shared brand + assistant name "KUN"
   - **Trade-off:** None, strengthens portfolio narrative
 
 - **Decision:** AI assistant named "KUN" (not translated)

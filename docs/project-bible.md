@@ -368,16 +368,15 @@ CREATE TABLE audit_log (
 ## 5. Design System
 
 ### Color Palette
-- **Background:** #f8fafc (very light slate)
+- **Background:** #f7f9fb
 - **Surface:** #ffffff (white)
-- **Text (primary):** #0f172a (dark slate)
-- **Text (secondary):** #475569 (medium slate)
-- **Text (tertiary):** #94a3b8 (light slate)
-- **Border:** #e2e8f0 (very light)
-- **Accent (primary):** #2563eb (blue)
+- **Text (primary):** #191c1e
+- **Text (secondary):** #434655
+- **Border:** #c3c6d7
+- **Accent (primary):** #004ac6
 - **Warning:** #d97706 (amber)
-- **Critical:** #dc2626 (red)
-- **Success:** #10b981 (green)
+- **Critical:** #ba1a1a (red)
+- **Success:** #007d55 (green)
 
 ### Typography
 - **Font:** Inter (system fallback: -apple-system, BlinkMacSystemFont, Segoe UI)

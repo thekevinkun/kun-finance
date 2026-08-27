@@ -370,10 +370,10 @@ CREATE TABLE audit_log (
 ### Color Palette
 - **Background:** #f7f9fb
 - **Surface:** #ffffff (white)
-- **Text (primary):** #191c1e
-- **Text (secondary):** #434655
-- **Border:** #c3c6d7
-- **Accent (primary):** #004ac6
+- **Ink:** #191c1e
+- **Ink Muted:** #434655
+- **Line:** #c3c6d7
+- **Accent:** #004ac6
 - **Warning:** #d97706 (amber)
 - **Critical:** #ba1a1a (red)
 - **Success:** #007d55 (green)

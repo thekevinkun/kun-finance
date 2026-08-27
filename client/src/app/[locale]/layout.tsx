@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, IBM_Plex_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales, type Locale } from "@/i18n/config";
 import "../globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// 1. Initialize Inter (Sans-serif)
+const inter = Inter({
   subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter", // Defines the CSS variable
 });
 
+// 2. Initialize IBM_Plex_Mono (Monospace)
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"], // Specify the weights you plan to use
+  display: "swap",
+  variable: "--font-mono-custom",
+});
 export const metadata: Metadata = {
   title: "Kun Finance",
   description: "AI-powered cash flow forecasting for small businesses",
@@ -38,10 +46,7 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html
-      lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang={locale} className={`${inter.variable} ${ibmPlexMono.variable}`}>
       <body className="min-h-full flex flex-col">
         {/* Makes translations available to any client component below
             via the useTranslations() hook, without prop-drilling. */}

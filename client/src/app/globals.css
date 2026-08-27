@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* Colors */
   --color-background: #f7f9fb;
   --color-surface: #ffffff;
   --color-ink: #191c1e;
@@ -10,4 +11,61 @@
   --color-warning: #d97706;
   --color-critical: #ba1a1a;
   --color-success: #007d55;
+
+  /* Custom Letter Spacing */
+  --tracking-tight-h1: -0.01em;
+
+  /* Typography */
+  --font-sans:
+    var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono:
+    var(--font-mono-custom), "IBM Plex Mono", "Courier Prime", ui-monospace,
+    monospace;
+
+  /* Spacing & Layout Variables */
+  --spacing-sidebar: 200px;
+  --spacing-topbar: 56px;
+  --spacing-page-pad: 24px;
+  --spacing-card-x: 20px;
+  --spacing-card-y: 16px;
+  --spacing-card: 16px;
+  --spacing-section: 24px;
+
+  /* Border Radius */
+  --radius-card: 8px;
+  --radius-btn: 6px;
+  --radius-sm-el: 4px;
+
+  /* Shadows */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Global Base Typography & Elements */
+body {
+  /* Font Family */
+  font-family: var(--font-sans);
+
+  /* Strict Typography Specs */
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+
+  /* Color Scheme */
+  color: var(--color-ink);
+  background-color: var(--color-background);
+
+  /* Built-in Tailwind Antialiasing equivalents */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Preconfigured component classes for strict layout consistency */
+.card-padding {
+  padding: var(--spacing-card-y) var(--spacing-card-x);
+}
+
+.no-shadow-border {
+  border: 1px solid var(--color-line); /* Custom clean look */
 }

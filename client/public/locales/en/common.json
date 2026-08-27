@@ -1,0 +1,9 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "forecast": "Forecast",
+    "transactions": "Transactions",
+    "reports": "Reports"
+  },
+  "ai_assistant": "KUN"
+}

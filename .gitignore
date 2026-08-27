@@ -1,0 +1,35 @@
+# --- Node (client + server) ---
+node_modules/
+.next/
+dist/
+build/
+*.tsbuildinfo
+npm-debug.log*
+
+# --- Env files (never commit secrets) ---
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# --- Python (ml) ---
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# --- Model artifacts ---
+# project-bible.md: models <10MB may be committed to git, otherwise go to S3.
+# Left un-ignored on purpose — decide per-file with `git add` rather than a blanket rule.
+# If a model ever exceeds 10MB, uncomment the line below instead of committing it.
+# ml/models/*.pkl
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Logs ---
+*.log

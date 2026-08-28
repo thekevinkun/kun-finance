@@ -1,0 +1,76 @@
+# .github/workflows/test.yml
+# Runs on every push to main and every pull request.
+# Checks: TypeScript compiles, ESLint passes, tests pass, build succeeds.
+# Client and server are tested in separate jobs since they have different
+# dependencies and don't need to block each other.
+
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  client:
+    name: Client (Next.js)
+    runs-on: ubuntu-latest
+    steps:
+      # Pulls your repo code into the runner's temporary environment
+      - uses: actions/checkout@v4
+
+      # Installs the specified Node version on the runner
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # npm workspaces means one install at root covers client + server + shared
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run build --workspace=client
+
+      - name: Lint
+        run: npm run lint --workspace=client
+
+  server:
+    name: Server (Express)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run build --workspace=server
+
+      - name: Test
+        run: npm run test --workspace=server
+
+  ml:
+    name: Python ML
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Installs the specified Python version on the runner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        working-directory: ml
+        run: pip install -r requirements.txt
+
+      - name: Test
+        working-directory: ml
+        run: pytest

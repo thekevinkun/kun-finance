@@ -4,6 +4,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { notFoundHandler } from "./middleware/notFoundHandler";
+import { errorHandler } from "./middleware/errorHandler";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -28,6 +30,14 @@ app.get("/healthcheck", (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// --- Real routes go here as they're built ---
+
+// Catch requests to undefined routes
+app.use(notFoundHandler);
+
+// Global error handler — must be registered last
+app.use(errorHandler);
 
 // Start the server and listen on the specified port, logging a message to indicate that the server is running
 app.listen(PORT, () => {

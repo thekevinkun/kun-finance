@@ -108,20 +108,20 @@
     - [x] Test: visit `/id/dashboard` and `/en/dashboard` (both work)
   - [x] Placeholder pages: `/[locale]/dashboard`, `/[locale]/forecast`, `/[locale]/transactions`, `/[locale]/reports`
   - [ ] Git workflow setup (main + feature branches)
-- [ ] **Server (Express):**
-  - [ ] `npm init -y` + TypeScript setup
-  - [ ] `package.json` scripts: `dev`, `build`, `start`, `test`
-  - [ ] `tsconfig.json` configured
-  - [ ] Entry point `src/index.ts` created
-  - [ ] Express server scaffold (port 5000)
-  - [ ] CORS configured to allow frontend localhost:3000
-  - [ ] `.env` template created (DATABASE_URL, JWT_SECRET, etc.)
-  - [ ] Prisma initialized (`npm install @prisma/client && npx prisma init`)
-  - [ ] `.env` linked to PostgreSQL (Neon or local)
-  - [ ] First migration: base schema pushed to DB
-  - [ ] Folder structure: `/src/api/routes`, `/src/services`, `/src/middleware`, `/src/lib`
-  - [ ] Middleware stack in place (error handling, CORS, logging)
-  - [ ] `/healthcheck` endpoint working
+- [x] **Server (Express):**
+  - [x] `npm init -y` + TypeScript setup
+  - [x] `package.json` scripts: `dev`, `build`, `start`, `test`
+  - [x] `tsconfig.json` configured
+  - [x] Entry point `src/index.ts` created
+  - [x] Express server scaffold (port 5000)
+  - [x] CORS configured to allow frontend localhost:3000
+  - [x] `.env` template created (DATABASE_URL, DIRECT_URL, JWT_SECRET, etc.)
+  - [x] Prisma initialized (pinned to 7.9.0 — see decision log)
+  - [x] `.env` linked to PostgreSQL (Supabase, pooled + direct connection)
+  - [x] First migration: base schema pushed to DB
+  - [x] Folder structure: `/src/api/routes`, `/src/services`, `/src/middleware`, `/src/lib`
+  - [x] Middleware stack in place (error handling, CORS)
+  - [x] `/healthcheck` endpoint working
 - [ ] **Python ML:**
   - [ ] Python 3.11+ installed
   - [ ] Virtual env created

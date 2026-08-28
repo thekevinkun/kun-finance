@@ -9,6 +9,40 @@
 
 ## Session Notes (Latest at Top)
 
+### Session 3 — Server Scaffold, Prisma, CI/CD
+**Date:** August 28, 2026
+**Status:** ✅ Complete
+
+**Accomplished:**
+- Express 5 server scaffolded with CORS, JSON parsing, error/404 middleware
+- Prisma 7.9.0 schema written: 8 models translated 1:1 from project-bible.md
+- Migrated from planned Neon to Supabase for PostgreSQL hosting
+- Row Level Security enabled on all tables via tracked migration
+- Python 3.12 ML pipeline skeleton scaffolded (generate_demo.py, train.py, predict.py)
+- Vitest + pytest configured with sample tests for server and ml
+- GitHub Actions CI workflow set up across client/server/ml
+- README.md, DEVELOPMENT.md, CHANGELOG.md written
+
+**Decisions made:**
+- Pinned Prisma to 7.9.0 after `prisma@latest` resolved to an unstable
+  8.0.0-rc.x Platform CLI with breaking changes (see ai-workflow.md decision log)
+- Supabase chosen over Neon — same "Postgres or local" slot from original plan,
+  adds dashboard/RLS tooling
+- Split Supabase's pooled (`DATABASE_URL`) vs direct (`DIRECT_URL`) connections:
+  pooled for app runtime, direct for Prisma Migrate (pooler can't run migrations)
+- Test-immediately-after-logic adopted as the project's testing rhythm going
+  forward, rather than deferring all tests to Phase 8
+
+**Debugging notes (for future reference):**
+- Prisma 8 RC auto-installs `.agents/.claude/.cursor/.devil` skill folders —
+  safe to delete, added to .gitignore
+- Next.js 16's typed-routes constraint requires generated `LayoutProps<"/[locale]">`
+  instead of hand-written params types in `[locale]/layout.tsx`
+- CI needs dummy DATABASE_URL/DIRECT_URL env vars for `prisma generate` step
+  (doesn't connect to a real DB, but prisma.config.ts eagerly reads env vars)
+
+**What's next:** Documentation section of Phase 1 (this session), then Phase 2 (Authentication)
+
 ### Session 2 — Client Scaffold + i18n
 **Date:** August 27, 2026
 **Status:** ✅ Complete
@@ -107,7 +141,7 @@
     - [x] Routes wrapped with i18n provider
     - [x] Test: visit `/id/dashboard` and `/en/dashboard` (both work)
   - [x] Placeholder pages: `/[locale]/dashboard`, `/[locale]/forecast`, `/[locale]/transactions`, `/[locale]/reports`
-  - [ ] Git workflow setup (main + feature branches)
+  - [x] Git workflow setup (main + feature branches)
 - [x] **Server (Express):**
   - [x] `npm init -y` + TypeScript setup
   - [x] `package.json` scripts: `dev`, `build`, `start`, `test`
@@ -130,23 +164,23 @@
   - [x] Folder structure: `/ml/models`, `/ml/data`, `/ml/notebooks`
   - [x] `train.py` skeleton created (loads data, prints progress, no actual training yet)
   - [x] `predict.py` skeleton created (loads models, generates dummy predictions)
-- [ ] **Database (PostgreSQL):**
-  - [ ] PostgreSQL running (Neon connection string in `.env`)
-  - [ ] Prisma schema (`schema.prisma`) with all 13 tables defined
-  - [ ] First migration created and applied (`npx prisma migrate dev --name init`)
-  - [ ] Prisma Studio tested locally (`npx prisma studio`)
+- [x] **Database (PostgreSQL):**
+  - [x] PostgreSQL running (Supabase connection string in `.env`)
+  - [x] Prisma schema (`schema.prisma`) with all 13 tables defined
+  - [x] First migration created and applied (`npx prisma migrate dev --name init`)
+  - [x] Prisma Studio tested locally (`npx prisma studio`)
 - [x] **Testing setup:**
   - [x] Vitest configured in `/server`
   - [x] pytest configured in `/ml`
   - [x] Sample test written for each (verify runner works)
-- [ ] **CI/CD:**
-  - [ ] GitHub Actions workflow created: `.github/workflows/test.yml`
-  - [ ] Runs: typecheck, lint (ESLint), test, build
-  - [ ] Runs on: push to `main`, PRs
-- [ ] **Documentation:**
-  - [ ] `README.md` written (project overview, setup instructions)
-  - [ ] `DEVELOPMENT.md` written (how to run locally, how to contribute)
-  - [ ] `CHANGELOG.md` created (empty, will track changes)
+- [x] **CI/CD:**
+  - [x] GitHub Actions workflow created: `.github/workflows/test.yml`
+  - [x] Runs: typecheck, lint (ESLint), test, build
+  - [x] Runs on: push to `master`, PRs
+- [x] **Documentation:**
+  - [x] `README.md` written (project overview, setup instructions)
+  - [x] `DEVELOPMENT.md` written (how to run locally, how to contribute)
+  - [x] `CHANGELOG.md` created (empty, will track changes)
 
 **Definition of done:** Developer can run `npm run dev` (client) + `npm run dev` (server) + python scripts, all boilerplate works, i18n routing works (`/id/...` and `/en/...` pages load correctly), language toggle switches between ID and EN, no business logic yet.
 

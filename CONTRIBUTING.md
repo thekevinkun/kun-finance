@@ -4,10 +4,10 @@ Solo project, but disciplined workflow on purpose — this is interview-signal p
 
 ## Branching
 
-- `main` is always deployable / never broken.
+- `master` is always deployable / never broken.
 - One feature branch per task: `feature/<task-name>`
   - e.g. `feature/repo-setup`, `feature/auth-middleware`, `feature/forecast-chart`
-- Open a PR into `main` even solo — forces you to review your own diff before merging.
+- Open a PR into `master` even solo — forces you to review your own diff before merging.
 
 ## Commit Messages
 

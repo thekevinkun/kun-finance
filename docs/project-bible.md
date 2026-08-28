@@ -35,7 +35,7 @@
 - **Runtime:** Node.js 20+
 - **Server:** Express v5
 - **Language:** TypeScript
-- **Database:** PostgreSQL (Supabase, pooled connection)
+- **Database:** PostgreSQL (Supabase, pooled connection + direct connection)
 - **ORM:** Prisma 7.9.0 (pinned — see Known Constraints)
 - **Validation:** Zod v4
 - **Auth:** Custom JWT (email + password + refresh tokens)
@@ -44,7 +44,7 @@
 - **Error tracking:** Sentry (optional, for production)
 
 ### Machine Learning
-- **Language:** Python 3.11+
+- **Language:** Python 3.12+
 - **Package manager:** pip + virtual env
 - **Forecasting model:** scikit-learn (Gradient Boosting Regressor)
 - **Anomaly detection:** scikit-learn (Isolation Forest)
@@ -53,7 +53,7 @@
 - **LLM integration:** OpenAI API (gpt-4o-mini for advice generation)
 
 ### Infrastructure & Deployment
-- **Database hosting:** Neon (serverless PostgreSQL) or local PostgreSQL
+- **Database hosting:** Supabase (serverless PostgreSQL)
 - **Frontend hosting:** Vercel
 - **Backend hosting:** Railway
 - **File storage:** Local (development) or AWS S3 (production-ready structure)

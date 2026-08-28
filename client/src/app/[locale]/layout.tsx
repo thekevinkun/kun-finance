@@ -32,10 +32,7 @@ export const metadata: Metadata = {
 export default async function LocaleLayout({
   children,
   params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: Locale }>;
-}) {
+}: LayoutProps<"/[locale]">) {
   const { locale } = await params;
 
   // If someone visits a locale we don't support (e.g. /fr/dashboard),
@@ -43,6 +40,12 @@ export default async function LocaleLayout({
   if (!locales.includes(locale as Locale)) {
     notFound();
   }
+
+  // At this point, notFound() has already thrown for any invalid locale,
+  // so TypeScript can safely be told this string IS a valid Locale.
+  // This is a type assertion, not a runtime check — the actual safety
+  // came from the .includes() + notFound() above.
+  const validLocale = locale as Locale;
 
   // Loads the translated strings for this request (uses i18n/request.ts).
   const messages = await getMessages();
@@ -52,9 +55,9 @@ export default async function LocaleLayout({
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {/* Makes translations available to any client component below
             via the useTranslations() hook, without prop-drilling. */}
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider locale={validLocale} messages={messages}>
           {children}
-          <LanguageToggle locale={locale} />
+          <LanguageToggle locale={validLocale} />
         </NextIntlClientProvider>
       </body>
     </html>

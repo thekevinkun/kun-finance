@@ -135,10 +135,10 @@
   - [ ] Prisma schema (`schema.prisma`) with all 13 tables defined
   - [ ] First migration created and applied (`npx prisma migrate dev --name init`)
   - [ ] Prisma Studio tested locally (`npx prisma studio`)
-- [ ] **Testing setup:**
-  - [ ] Vitest configured in `/server`
-  - [ ] pytest configured in `/ml`
-  - [ ] Sample test written for each (verify runner works)
+- [x] **Testing setup:**
+  - [x] Vitest configured in `/server`
+  - [x] pytest configured in `/ml`
+  - [x] Sample test written for each (verify runner works)
 - [ ] **CI/CD:**
   - [ ] GitHub Actions workflow created: `.github/workflows/test.yml`
   - [ ] Runs: typecheck, lint (ESLint), test, build

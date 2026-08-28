@@ -1,5 +1,5 @@
 # .github/workflows/test.yml
-# Runs on every push to main and every pull request.
+# Runs on every push to master and every pull request.
 # Checks: TypeScript compiles, ESLint passes, tests pass, build succeeds.
 # Client and server are tested in separate jobs since they have different
 # dependencies and don't need to block each other.
@@ -8,9 +8,9 @@ name: Test
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   client:

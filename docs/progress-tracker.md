@@ -122,14 +122,14 @@
   - [x] Folder structure: `/src/api/routes`, `/src/services`, `/src/middleware`, `/src/lib`
   - [x] Middleware stack in place (error handling, CORS)
   - [x] `/healthcheck` endpoint working
-- [ ] **Python ML:**
-  - [ ] Python 3.11+ installed
-  - [ ] Virtual env created
-  - [ ] `requirements.txt` created (scikit-learn, pandas, numpy, openai)
-  - [ ] Demo data generator script: `/ml/data/generate_demo.py`
-  - [ ] Folder structure: `/ml/models`, `/ml/data`, `/ml/notebooks`
-  - [ ] `train.py` skeleton created (loads data, prints progress, no actual training yet)
-  - [ ] `predict.py` skeleton created (loads models, generates dummy predictions)
+- [x] **Python ML:**
+  - [x] Python 3.11+ installed
+  - [x] Virtual env created
+  - [x] `requirements.txt` created (scikit-learn, pandas, numpy, openai)
+  - [x] Demo data generator script: `/ml/data/generate_demo.py`
+  - [x] Folder structure: `/ml/models`, `/ml/data`, `/ml/notebooks`
+  - [x] `train.py` skeleton created (loads data, prints progress, no actual training yet)
+  - [x] `predict.py` skeleton created (loads models, generates dummy predictions)
 - [ ] **Database (PostgreSQL):**
   - [ ] PostgreSQL running (Neon connection string in `.env`)
   - [ ] Prisma schema (`schema.prisma`) with all 13 tables defined

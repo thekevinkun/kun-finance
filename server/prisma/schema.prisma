@@ -18,8 +18,9 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updateAt     DateTime @updatedAt @map("update_at")
 
-  business  Business[]
-  auditLogs AuditLog[]
+  business      Business[]
+  auditLogs     AuditLog[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
@@ -144,4 +145,19 @@ model AuditLog {
 
   @@index([businessId, createdAt])
   @@map("audit_log")
+}
+
+// Refresh tokens for user sessions
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }

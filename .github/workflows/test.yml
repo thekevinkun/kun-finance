@@ -52,6 +52,12 @@ jobs:
 
       - name: Generate Prisma Client
         working-directory: server
+        # prisma generate doesn't connect to a real database — it only reads
+        # the schema to produce TypeScript types. But prisma.config.ts reads
+        # these env vars just to load, so we supply dummy values in CI.
+        env:
+          DATABASE_URL: "postgresql://user:pass@localhost:5432/dummy"
+          DIRECT_URL: "postgresql://user:pass@localhost:5432/dummy"
         run: npx prisma generate
 
       - name: Type check

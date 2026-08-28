@@ -1,7 +1,147 @@
+// Prisma schema — models translated 1:1 from project-bible.md Section 4
+// Connection URL lives in prisma.config.ts (Prisma 7+ requirement)
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// Authentication
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updateAt     DateTime @updatedAt @map("update_at")
+
+  business  Business[]
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+// Demo or user-created businesses
+model Business {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  name           String
+  type           String? // 'restaurant', 'salon', 'trading', etc
+  monthlyRevenue Decimal? @map("monthly_revenue") @db.Decimal(12, 2)
+  currency       String   @default("IDR")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
+  forecasts     Forecast[]
+  anomalies     Anomaly[]
+  advice        Advice[]
+  modelMetadata ModelMetadata[]
+  auditLogs     AuditLog[]
+
+  @@map("businesses")
+}
+
+// Historical transactions
+model Transaction {
+  id          String   @id @default(uuid())
+  businessId  String   @map("business_id")
+  date        DateTime @db.Date
+  amount      Decimal  @db.Decimal(12, 2)
+  category    String? // 'revenue', 'payroll', 'rent', 'supplier', etc.
+  description String?
+  type        String? // 'income', 'expense'
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  business  Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  anomalies Anomaly[]
+
+  @@index([businessId, date])
+  @@map("transactions")
+}
+
+// Pre-computed forecasts
+model Forecast {
+  id              String   @id @default(uuid())
+  businessId      String   @map("business_id")
+  forecastDate    DateTime @map("forecast_date") @db.Date
+  predictedCash   Decimal  @map("predicted_cash") @db.Decimal(12, 2)
+  confidenceLower Decimal? @map("confidence_lower") @db.Decimal(12, 2)
+  confidenceUpper Decimal? @map("confidence_upper") @db.Decimal(12, 2)
+  modelVersion    String?  @map("model_version") // e.g. 'gb_v1_2026-08-01'
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, forecastDate])
+  @@index([businessId, forecastDate])
+  @@map("forecasts")
+}
+
+// Detected anomalies
+model Anomaly {
+  id            String   @id @default(uuid())
+  businessId    String   @map("business_id")
+  transactionId String?  @map("transaction_id")
+  anomalyType   String?  @map("anomaly_type") // 'high_outlier', 'new_vendor', 'duplicate', etc.
+  severity      String? // 'low', 'medium', 'high'
+  explanation   String?
+  flaggedAmount Decimal? @map("flagged_amount") @db.Decimal(12, 2)
+  detectedAt    DateTime @default(now()) @map("detected_at")
+
+  business    Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, severity])
+  @@map("anomalies")
+}
+
+// LLM-generated advice
+model Advice {
+  id          String   @id @default(uuid())
+  businessId  String   @map("business_id")
+  adviceText  String   @map("advice_text")
+  type        String? // 'forecast', 'anomaly', 'optimization'
+  priority    String? // 'low', 'medium', 'high'
+  generatedAt DateTime @default(now()) @map("generated_at")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, priority])
+  @@map("advice")
+}
+
+// Model metadata
+model ModelMetadata {
+  id              String    @id @default(uuid())
+  businessId      String    @map("business_id")
+  modelType       String?   @map("model_type") // 'forecaster', 'anomaly_detector'
+  algorithm       String?
+  rmse            Decimal?  @db.Decimal(10, 2)
+  confidenceScore Decimal?  @map("confidence_score") @db.Decimal(3, 2) // 0.0 to 1.0
+  trainedAt       DateTime? @map("trained_at")
+  nextTraining    DateTime? @map("next_training")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@map("model_metadata")
+}
+
+// Audit log
+model AuditLog {
+  id         String   @id @default(uuid())
+  businessId String   @map("business_id")
+  userId     String?  @map("user_id")
+  action     String? // 'viewed_forecast', 'downloaded_report', etc.
+  details    Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User?    @relation(fields: [userId], references: [id])
+
+  @@index([businessId, createdAt])
+  @@map("audit_log")
 }

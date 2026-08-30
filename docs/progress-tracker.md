@@ -194,15 +194,15 @@
 **Checklist:**
 
 - [ ] **Auth service created:**
-  - [ ] `src/services/auth.service.ts` with functions: `register()`, `login()`, `refreshToken()`
-  - [ ] JWT utility: `src/lib/jwt.ts` (sign, verify, decode)
-  - [ ] Password hashing: bcrypt integration
+  - [x] `src/services/auth.service.ts` with functions: `register()`, `login()`, `refreshToken()`
+  - [x] JWT utility: `src/lib/jwt.ts` (sign, verify, decode)
+  - [x] Password hashing: bcrypt integration
   - [ ] Test: unit tests for auth functions (Vitest)
-- [ ] **API routes created:**
-  - [ ] `POST /api/auth/register` (email, password)
-  - [ ] `POST /api/auth/login` (email, password)
-  - [ ] `POST /api/auth/refresh` (refresh token)
-  - [ ] All routes return `Result<T>` type
+- [x] **API routes created:**
+  - [x] `POST /api/auth/register` (email, password)
+  - [x] `POST /api/auth/login` (email, password)
+  - [x] `POST /api/auth/refresh` (refresh token)
+  - [x] All routes return `Result<T>` type
 - [ ] **Middleware:**
   - [ ] Authentication middleware: verifies JWT, extracts user_id
   - [ ] Authorization middleware: checks business_id ownership

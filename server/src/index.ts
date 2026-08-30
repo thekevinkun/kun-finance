@@ -4,8 +4,12 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { notFoundHandler } from "./middleware/notFoundHandler";
+import cookieParser from "cookie-parser";
 import { errorHandler } from "./middleware/errorHandler";
+import { notFoundHandler } from "./middleware/notFoundHandler";
+
+// Import ROUTES
+import authRoutes from "./api/routes/auth";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -22,6 +26,9 @@ app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000" }));
 // Enable JSON parsing for incoming requests
 app.use(express.json());
 
+// Apply cookie-parser so we can read httpOnly cookies (where we store JWT tokens)
+app.use(cookieParser());
+
 // Define a health check endpoint that responds with a JSON object indicating the server's health status
 app.get("/healthcheck", (_req, res) => {
   res.json({
@@ -31,13 +38,16 @@ app.get("/healthcheck", (_req, res) => {
   });
 });
 
-// --- Real routes go here as they're built ---
+// Real routes go here as they're built //
 
 // Catch requests to undefined routes
 app.use(notFoundHandler);
 
 // Global error handler — must be registered last
 app.use(errorHandler);
+
+// Register the auth routes under the /api/auth path
+app.use("/api/auth", authRoutes);
 
 // Start the server and listen on the specified port, logging a message to indicate that the server is running
 app.listen(PORT, () => {

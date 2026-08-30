@@ -5,7 +5,8 @@ import { signToken, generateRefreshToken, hashToken } from "../lib/jwt";
 
 // Import types
 import { Result } from "@kun-finance/shared";
-import { RegisterInput, LoginInput, AuthResult } from "../types/auth";
+import { AuthResult } from "../types/auth";
+import { RegisterInput, LoginInput } from "../validators/auth.validator";
 
 // Register user
 export const registerUser = async (

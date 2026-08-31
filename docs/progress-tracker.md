@@ -9,6 +9,31 @@
 
 ## Session Notes (Latest at Top)
 
+### Session 4 — Phase 2: Authentication
+**Date:** August 2026
+**Status:** ✅ Complete
+
+**Accomplished:**
+- `RefreshToken` Prisma model migrated (`20260828140941_add_refresh_tokens`) with `tokenHash`, `expiresAt`, `revokedAt` (nullable soft revocation), cascading FK to `users`
+- `src/lib/jwt.ts`: `signToken`, `verifyToken`, `decodeToken`, `generateRefreshToken`, `hashToken`
+- `src/lib/bcrypt.ts`: `hashPassword`, `comparePassword`
+- `src/validators/auth.validator.ts`: Zod schemas for register and login, `RegisterServiceInput` type
+- `src/validators/index.ts`: reusable `validate` middleware
+- `src/services/auth.service.ts`: `registerUser`, `loginUser`, `refreshToken` — all return `Result<T>`, token rotation, refresh token reuse detection
+- `src/api/routes/auth.ts`: `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh`
+- `src/middleware/authenticate.ts`: JWT verification via Authorization header, attaches `req.user`
+- 14 Vitest unit tests — all passing
+
+**Decisions made:**
+- Access token lives in memory on client, sent via `Authorization: Bearer` header
+- Refresh token is opaque random string (not JWT), stored as SHA-256 hash in DB
+- Separate `refresh_tokens` table for multi-device session support
+- Refresh token reuse detection: re-presented revoked token triggers full session revocation
+- `confirmPassword` validated at Zod layer only, stripped before reaching service
+- Frontend auth (Zustand, login/register pages) deferred to Phase 5 when pages are built
+
+**What's next:** Phase 3 — Demo Data
+
 ### Session 3 — Server Scaffold, Prisma, CI/CD
 **Date:** August 28, 2026
 **Status:** ✅ Complete
@@ -193,11 +218,11 @@
 
 **Checklist:**
 
-- [ ] **Auth service created:**
+- [x] **Auth service created:**
   - [x] `src/services/auth.service.ts` with functions: `register()`, `login()`, `refreshToken()`
   - [x] JWT utility: `src/lib/jwt.ts` (sign, verify, decode)
   - [x] Password hashing: bcrypt integration
-  - [ ] Test: unit tests for auth functions (Vitest)
+  - [x] Test: unit tests for auth functions (Vitest)
 - [x] **API routes created:**
   - [x] `POST /api/auth/register` (email, password)
   - [x] `POST /api/auth/login` (email, password)
@@ -207,20 +232,20 @@
   - [x] Authentication middleware: verifies JWT, extracts user_id
   - [x] Authorization middleware: checks business_id ownership
   - [x] Applied to all protected routes
-- [ ] **Frontend:**
+- [ ] **Frontend:** *(deferred to Phase 5 — building alongside dashboard pages)*
   - [ ] Zustand store for auth state (currentUser, isAuthenticated, tokens)
   - [ ] Login page: email + password form, submit to `/api/auth/login`
   - [ ] Register page: email + password + confirm, submit to `/api/auth/register`
   - [ ] Redirect unauthenticated users to login
   - [ ] Store tokens in localStorage (access) + httpOnly cookie (refresh, backend sets)
   - [ ] Pass JWT in Authorization header for all API calls
-- [ ] **Test cases:**
-  - [ ] Register new user
-  - [ ] Login existing user
-  - [ ] Invalid password rejected
-  - [ ] Refresh token works
-  - [ ] Expired JWT rejected
-  - [ ] Unauthenticated request rejected
+- [x] **Test cases:**
+  - [x] Register new user
+  - [x] Login existing user
+  - [x] Invalid password rejected
+  - [x] Refresh token works
+  - [x] Expired JWT rejected
+  - [x] Unauthenticated request rejected
 
 **Definition of done:** User can register, login, get JWT, use it to access protected routes. Token refresh works.
 

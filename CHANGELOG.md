@@ -35,3 +35,17 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
   `[locale]/layout.tsx` (switched to generated `LayoutProps<"/[locale]">`)
 - Vitest picking up stale compiled test files from `dist/` (excluded via
   `vitest.config.ts`)
+
+## [Unreleased] — Phase 2: Authentication
+
+### Added
+- `RefreshToken` Prisma model with soft revocation and cascade delete
+- JWT utilities: sign, verify, decode, refresh token generation, SHA-256 hashing
+- bcrypt password hashing and comparison helpers
+- Auth service: register, login, refresh — all returning `Result<T>`, never throwing
+- Refresh token reuse detection (full session revocation on suspicious reuse)
+- Zod validation schemas for register and login
+- Reusable `validate` Express middleware
+- Auth routes: POST /api/auth/register, /login, /refresh with httpOnly cookie handling
+- `authenticate` middleware: Bearer token verification, attaches `req.user`
+- 14 unit tests covering auth service and middleware

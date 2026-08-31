@@ -41,3 +41,6 @@ export const loginSchema = z.object({
 // Export Types
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+
+// What the service actually needs
+export type RegisterServiceInput = Omit<RegisterInput, "confirmPassword">;

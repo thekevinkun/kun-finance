@@ -1,6 +1,6 @@
 // Import Express Router — this lets us define routes separately from the main server file
 import { Router } from "express";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 
 // Import the service functions that handle the business logic for authentication
 import {
@@ -26,8 +26,13 @@ router.post(
   "/register",
   validate(registerSchema),
   async (req: Request, res: Response) => {
+    // Zod's parsed req.body is typed as RegisterInput,
+    // but we're passing it to a service expecting RegisterServiceInput
+    // Destructure confirmPassword out before passing
+    const { confirmPassword: _, ...serviceData } = req.body;
+
     // Call the registerUser service function with the validated request body
-    const result = await registerUser(req.body);
+    const result = await registerUser(serviceData);
 
     if (!result.ok) {
       return res.status(400).json({

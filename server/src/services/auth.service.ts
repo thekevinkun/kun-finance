@@ -4,13 +4,13 @@ import { hashPassword, comparePassword } from "../lib/bcrypt";
 import { signToken, generateRefreshToken, hashToken } from "../lib/jwt";
 
 // Import types
-import { Result } from "@kun-finance/shared";
-import { AuthResult } from "../types/auth";
-import { RegisterInput, LoginInput } from "../validators/auth.validator";
+import type { Result } from "@kun-finance/shared";
+import type { AuthResult } from "../types/auth";
+import type { RegisterServiceInput, LoginInput } from "../validators/auth.validator";
 
 // Register user
 export const registerUser = async (
-  data: RegisterInput,
+  data: RegisterServiceInput,
 ): Promise<Result<AuthResult>> => {
   try {
     // Check if an account with this email already exists

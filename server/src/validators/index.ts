@@ -3,8 +3,8 @@
 // If validation fails, it returns 400 with the exact error message
 // If validation passes, it replaces req.body with the parsed (cleaned) data
 
-import { Request, Response, NextFunction } from "express";
 import { ZodSchema } from "zod/v3";
+import type { Request, Response, NextFunction } from "express";
 
 export const validate = (schema: ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {

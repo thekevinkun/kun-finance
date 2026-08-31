@@ -203,10 +203,10 @@
   - [x] `POST /api/auth/login` (email, password)
   - [x] `POST /api/auth/refresh` (refresh token)
   - [x] All routes return `Result<T>` type
-- [ ] **Middleware:**
-  - [ ] Authentication middleware: verifies JWT, extracts user_id
-  - [ ] Authorization middleware: checks business_id ownership
-  - [ ] Applied to all protected routes
+- [x] **Middleware:**
+  - [x] Authentication middleware: verifies JWT, extracts user_id
+  - [x] Authorization middleware: checks business_id ownership
+  - [x] Applied to all protected routes
 - [ ] **Frontend:**
   - [ ] Zustand store for auth state (currentUser, isAuthenticated, tokens)
   - [ ] Login page: email + password form, submit to `/api/auth/login`

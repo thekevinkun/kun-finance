@@ -10,7 +10,7 @@ if (!JWT_SECRET) {
 }
 
 // Define the structure of the token payload, which includes the standard JWT payload and a userId
-type TokenPayload = JwtPayload & {
+export type TokenPayload = JwtPayload & {
   userId: string;
 };
 

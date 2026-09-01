@@ -258,16 +258,16 @@
 
 **Checklist:**
 
-- [ ] **Demo data generator (Python):**
-  - [ ] `ml/data/generate_demo.py` creates realistic transaction patterns
-  - [ ] Generates 3 demo businesses (restaurant, salon, trading)
-  - [ ] Each business: 12 months (360 days) of daily + periodic transactions
-  - [ ] Transaction patterns:
-    - [ ] Daily revenue (varies by day-of-week, seasonal)
-    - [ ] Fixed costs (rent, payroll on specific dates)
-    - [ ] Variable costs (suppliers every 15 days, utilities monthly)
-    - [ ] Some anomalies (duplicate charge, spike, new vendor)
-  - [ ] Outputs: SQL insert statements or JSON
+- [x] **Demo data generator (Python):**
+  - [x] `ml/data/generate_demo.py` creates realistic transaction patterns
+  - [x] Generates 3 demo businesses (restaurant, salon, trading)
+  - [x] Each business: 12 months (360 days) of daily + periodic transactions
+  - [x] Transaction patterns:
+    - [x] Daily revenue (varies by day-of-week, seasonal)
+    - [x] Fixed costs (rent, payroll on specific dates)
+    - [x] Variable costs (suppliers every 15 days, utilities monthly)
+    - [x] Some anomalies (duplicate charge, spike, new vendor)
+  - [x] Outputs: SQL insert statements or JSON
 - [ ] **Seed script:**
   - [ ] `server/src/scripts/seed.ts` reads generated data
   - [ ] Inserts into PostgreSQL via Prisma

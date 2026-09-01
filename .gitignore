@@ -18,6 +18,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 *.egg-info/
+ml/data/*.json
 
 # --- Model artifacts ---
 # project-bible.md: models <10MB may be committed to git, otherwise go to S3.

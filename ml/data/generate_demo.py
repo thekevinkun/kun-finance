@@ -16,33 +16,41 @@ UUIDs, then swaps these slugs for the real IDs before inserting.
 HOW TO RUN IN TERMINAL:
 # Check the salon's weekend effect is real — compare a weekday to a weekend
 python3 -c "
-    import json
-    data = json.load(open('transactions.json'))
-    salon = [t for t in data if t['business_id'] == 'salon_demo' and t['category'] == 'revenue']
-    for t in salon[:10]:
-        print(t['date'], t['amount'])
+import json
+data = json.load(open('transactions.json'))
+salon = [t for t in data if t['business_id'] == 'salon_demo' and t['category'] == 'revenue']
+for t in salon[:10]:
+    print(t['date'], t['amount'])
 "
 
 # Check the contractor's lumpiness — revenue should be a handful of huge numbers, not steady
 python3 -c "
-    import json
-    data = json.load(open('transactions.json'))
-    contractor_rev = [t['amount'] for t in data if t['business_id'] == 'contractor_demo' and t['category'] == 'revenue']
-    print('count:', len(contractor_rev))
-    print('min:', min(contractor_rev), 'max:', max(contractor_rev))
+import json
+data = json.load(open('transactions.json'))
+contractor_rev = [t['amount'] for t in data if t['business_id'] == 'contractor_demo' and t['category'] == 'revenue']
+print('count:', len(contractor_rev))
+print('min:', min(contractor_rev), 'max:', max(contractor_rev))
 "
 
 # See the anomalies we planted, clearly labeled
 cat anomalies_ground_truth.json | python3 -m json.tool
 """
 
+# Lets Python roll dice
+# Give me a random number between 100 and 200
 import random
+
+# Lets Python create JSON files
 import json
+
+# Lets Python work with folders/files
 import os
+
+# Lets Python understand dates
 from datetime import date, timedelta
 
-# Config: the 3 demo businesses #
-
+# Config: the 3 demo businesses
+# These are the businesses that exist in our fake world
 BUSINESSES = [
     {"slug": "restaurant_demo", "name": "Warung Bu Rayya", "type": "restaurant"},
     {"slug": "salon_demo", "name": "Salon Mamba", "type": "salon"},
@@ -52,10 +60,17 @@ BUSINESSES = [
 # Salon revenue multiplier per day of week (Python: Monday=0 ... Sunday=6).
 # This is what makes the salon's cash flow visibly different from the
 # restaurant's — a real weekly cycle, not random noise.
+# 0 Monday     → 80% of normal
+# 1 Tuesday    → 80%
+# 2 Wednesday  → 100%
+# 3 Thursday   → 120%
+# 4 Friday     → 160%
+# 5 Saturday   → 240%
+# 6 Sunday     → 200%
 SALON_WEEKDAY_MULTIPLIER = {0: 0.8, 1: 0.8, 2: 1.0, 3: 1.2, 4: 1.6, 5: 2.4, 6: 2.0}
 
 
-# Shared helper: recurring monthly expenses (rent, payroll, etc.) #
+# Shared helper: recurring monthly expenses (rent, payroll, etc.)
 
 
 def add_monthly_expense(
@@ -76,13 +91,25 @@ def add_monthly_expense(
     instead of suspiciously always the exact same date — real businesses
     don't pay on a perfectly fixed schedule.
     """
+
+    # Start looking at the first day of the starting month
     current = date(start_date.year, start_date.month, 1)
+
+    # Keep doing this while we haven't reached the end
     while current <= end_date:
+        # Let's payroll normally happens on 25th
+        # Python rolls the dice: -2, -1, 0, +1, +2
+        # But Python might choose: 23rd 24th 25th 26th 27th
         jitter = random.randint(-jitter_days, jitter_days)
+
+        # If target day = 25 and jitter = -2
+        # Then 25 - 2 = 23
+        # So payroll happens on the 23rd.
         payment_date = date(current.year, current.month, target_day) + timedelta(
             days=jitter
         )
 
+        # Put one transaction into 'transactions' box
         if start_date <= payment_date <= end_date:
             transactions.append(
                 {
@@ -111,17 +138,43 @@ def generate_restaurant_transactions(slug, start_date, num_days):
     Daily cash revenue (customers pay every day), boosted on weekends.
     Supplier payments roughly every 2 weeks. Payroll + rent monthly.
     """
+
+    # First, give this restaurant an empty basket
     transactions = []
+
+    # Figure out when the simulation ends
+    # If start = Jan 1, num_days = 360
+    # Then end = about December 27
     end_date = start_date + timedelta(days=num_days)
 
+    # Do this once for every day
+    # i is basically, "which day are we currently on?""
     for i in range(num_days):
+        # Take the starting date and move forward i days
+        # i = 0 → Jan 1
+        # i = 1 → Jan 2
         current_date = start_date + timedelta(days=i)
-        is_weekend = current_date.weekday() >= 5  # Saturday or Sunday
 
+        # Get weekend
+        # 5 is Saturday or 6 is Sunday
+        is_weekend = current_date.weekday() >= 5
+
+        # Define base revenue
+        # Normal day is 1.800.000
         base_revenue = 1_800_000
-        weekend_boost = 700_000 if is_weekend else 0
-        noise = random.randint(-200_000, 200_000)  # day-to-day randomness
 
+        # If weekend, add 700.000. Otherwise, none
+        weekend_boost = 700_000 if is_weekend else 0
+
+        # day-to-day randomness
+        # "Let's make today's sales a little unpredictable."
+        # Like: Base:  Rp1.8M
+        #       Noise: -Rp100K
+        #       Actual: Rp1.7M
+        # This is to mimick that businesses aren't perfectly identical every day.
+        noise = random.randint(-200_000, 200_000)
+
+        # Create transactions by adding it to basket
         transactions.append(
             {
                 "business_id": slug,
@@ -134,7 +187,14 @@ def generate_restaurant_transactions(slug, start_date, num_days):
         )
 
         # Supplier payment roughly every 14 days (not perfectly regular)
+        # 14 % 14 = 0 = Day 14 🔔
+        # 28 % 14 = 0 = Day 28 🔔
+        # 42 % 14 = 0 = Day 42 🔔
+        # 56 % 14 = 0 = Day 56 🔔
+        # "Every 14 days, pay the supplier."
         if i % 14 == 0:
+            # Supplier payment gets jitter too
+            # Real life isn't perfectly scheduled
             jitter = random.randint(-2, 2)
             payment_date = current_date + timedelta(days=jitter)
             if start_date <= payment_date <= end_date:
@@ -199,6 +259,18 @@ def generate_salon_transactions(slug, start_date, num_days):
     end_date = start_date + timedelta(days=num_days)
     base_revenue = 2_000_000
 
+    # The salon is almost the same machine as the restaurant above
+    # But instead of daily (monday 1.8m, tuesday 1.8m ... saturday 2.5m)
+    # We uses SALON_WEEKDAY_MULTIPLIER define above
+    # Monday
+    # Rp2M × 0.8 = Rp1.6M
+    # Wednesday
+    # Rp2M × 1.0 = Rp2M
+    # Friday
+    # Rp2M × 1.6 = Rp3.2M
+    # Saturday
+    # Rp2M × 2.4 = Rp4.8M
+    # So the salon has a very visible weekly pattern.
     for i in range(num_days):
         current_date = start_date + timedelta(days=i)
         multiplier = SALON_WEEKDAY_MULTIPLIER[current_date.weekday()]
@@ -276,8 +348,17 @@ def generate_contractor_transactions(slug, start_date, num_days):
     end_date = start_date + timedelta(days=num_days)
 
     # Lumpy invoice income: 1-3 big payments per month, on random days
+    # Different that restaurant, contractor is flow is in big chunks of money
+    # For example: each payment is between Rp40M and Rp150M
+    # The contractor might get:
+    # Jan 5   +Rp80M
+    # Jan 21  +Rp120M
+    # Feb 10  +Rp50M
+    # Mar 3   +Rp140M
+    # Mar 28  +Rp70M
     current = date(start_date.year, start_date.month, 1)
     while current <= end_date:
+        # This month, randomly have 1–3 big customer payments.
         num_invoices = random.randint(1, 3)
         for _ in range(num_invoices):
             day_offset = random.randint(0, 27)
@@ -299,8 +380,13 @@ def generate_contractor_transactions(slug, start_date, num_days):
             else date(current.year, current.month + 1, 1)
         )
 
+    # Contractor expenses
     # Irregular materials purchases, roughly every 3-7 days (not fixed)
+
+    # Start day from 0
     cursor_day = 0
+
+    # Keep buying materials until the year is over.
     while cursor_day < num_days:
         purchase_date = start_date + timedelta(days=cursor_day)
         transactions.append(
@@ -313,7 +399,9 @@ def generate_contractor_transactions(slug, start_date, num_days):
                 "type": "expense",
             }
         )
-        cursor_day += random.randint(3, 7)  # next purchase 3-7 days later
+        cursor_day += random.randint(
+            3, 7
+        )  # After buying something, wait 3–7 days before buying again
 
     # Occasional equipment purchase: ~30% chance each month
     current = date(start_date.year, start_date.month, 1)
@@ -373,12 +461,26 @@ def inject_anomalies(transactions, slug):
         if t["category"] in ("utilities", "supplier", "materials")
     ]
     if spike_candidates:
+        # Let's say Electricity = Rp800K
+        # Python chooses one transaction
         target = random.choice(spike_candidates)
+
+        # Then multiply it by somewhere between 4× and 6×
+        # So, Rp800K × 5 =Rp4M 🚨
+        # This transaction is fake and abnormal
         target["amount"] = int(target["amount"] * random.uniform(4, 6))
         ground_truth.append({**target, "anomaly_type": "high_outlier"})
 
     # 2. Duplicate charge: same vendor, same amount, same day, charged twice
+    # Python picks a normal expense
+    # Aug 15 | Supplier | Rp5m
     expense_candidates = [t for t in own_transactions if t["type"] == "expense"]
+
+    # Then makes a copy and adds the copy
+    # Now:
+    # Aug 15   Supplier   Rp5M
+    # Aug 15   Supplier   Rp5M  🚨
+    # "Why did this business pay the same thing twice?"
     if expense_candidates:
         duplicate = dict(
             random.choice(expense_candidates)
@@ -387,6 +489,9 @@ def inject_anomalies(transactions, slug):
         ground_truth.append({**duplicate, "anomaly_type": "duplicate"})
 
     # 3. New vendor: a one-off large expense that never appears again
+    # Python creates mysterious vendor
+    # Unrecognized Vendor XYZ with 8M–15M
+    # IT creates like "Hey! Something you've never seen before suddenly took a lot of money."
     if own_transactions:
         sample_date = random.choice(own_transactions)["date"]
         new_vendor_txn = {
@@ -400,6 +505,11 @@ def inject_anomalies(transactions, slug):
         transactions.append(new_vendor_txn)
         ground_truth.append({**new_vendor_txn, "anomaly_type": "new_vendor"})
 
+    # ground_truth behave as the answer sheet
+    # We save fake-weird-anomaly information in it
+    # Then later we compare
+    # AI's guess vs ground_truth (the answer sheet)
+    # to see whether the AI was correct.
     return ground_truth
 
 
@@ -407,10 +517,12 @@ def inject_anomalies(transactions, slug):
 
 
 def main():
+    # Generate the last 360 days of history.
     end_date = date.today()
     start_date = end_date - timedelta(days=360)
     num_days = 360
 
+    # Dicitionary of machines we define above
     generators = {
         "restaurant_demo": generate_restaurant_transactions,
         "salon_demo": generate_salon_transactions,
@@ -420,16 +532,20 @@ def main():
     all_transactions = []
     all_ground_truth = []
 
+    # Go through every business.
     for slug, generator_fn in generators.items():
+        # generator_fn means: "Whichever generator belongs to this business."
+        # So like when we're processing: restaurant_demo
+        # Python effectively does: generate_restaurant_transactions
         business_transactions = generator_fn(slug, start_date, num_days)
         ground_truth = inject_anomalies(business_transactions, slug)
         all_transactions.extend(business_transactions)
         all_ground_truth.extend(ground_truth)
 
-    all_transactions.sort(
-        key=lambda t: t["date"]
-    )  # chronological, easier to read/debug
+    # Sorted in chronological, easier to read/debug
+    all_transactions.sort(key=lambda t: t["date"])
 
+    # Take all our fake transactions and put them into transactions.json.
     output_dir = os.path.dirname(__file__)
     with open(os.path.join(output_dir, "transactions.json"), "w") as f:
         json.dump(all_transactions, f, indent=2)

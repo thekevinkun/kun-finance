@@ -268,19 +268,19 @@
     - [x] Variable costs (suppliers every 15 days, utilities monthly)
     - [x] Some anomalies (duplicate charge, spike, new vendor)
   - [x] Outputs: SQL insert statements or JSON
-- [ ] **Seed script:**
-  - [ ] `server/src/scripts/seed.ts` reads generated data
-  - [ ] Inserts into PostgreSQL via Prisma
-  - [ ] Creates test users (test@example.com)
-  - [ ] Callable via `npm run seed`
+- [x] **Seed script:**
+  - [x] `server/src/scripts/seed.ts` reads generated data
+  - [x] Inserts into PostgreSQL via Prisma
+  - [x] Creates test users (test@example.com)
+  - [x] Callable via `npm run seed`
 - [ ] **API endpoint to fetch demo data:**
   - [ ] `GET /api/businesses` (list user's businesses)
   - [ ] Returns demo businesses + transaction counts
-- [ ] **Verify data:**
-  - [ ] Prisma Studio shows 3 demo businesses
-  - [ ] Each has ~360 transactions
-  - [ ] Date ranges correct (Jan — Dec)
-  - [ ] Amounts realistic (Rp values)
+- [x] **Verify data:**
+  - [x] Prisma Studio shows 3 demo businesses
+  - [x] Each has ~360 transactions
+  - [x] Date ranges correct (Jan — Dec)
+  - [x] Amounts realistic (Rp values)
 - [ ] **Frontend:**
   - [ ] Business selector created (shows "Warung Bu Ratna", "Toko Kopi", etc.)
   - [ ] Clicking business stores businessId in Zustand store

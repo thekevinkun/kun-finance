@@ -469,7 +469,9 @@ def inject_anomalies(transactions, slug):
         # So, Rp800K × 5 =Rp4M 🚨
         # This transaction is fake and abnormal
         target["amount"] = int(target["amount"] * random.uniform(4, 6))
-        ground_truth.append({**target, "anomaly_type": "high_outlier"})
+        ground_truth.append(
+            {"temp_id": target["temp_id"], "anomaly_type": "high_outlier"}
+        )
 
     # 2. Duplicate charge: same vendor, same amount, same day, charged twice
     # Python picks a normal expense
@@ -485,8 +487,9 @@ def inject_anomalies(transactions, slug):
         duplicate = dict(
             random.choice(expense_candidates)
         )  # copy, don't mutate original
+        duplicate["temp_id"] = len(transactions)  # give the copy its own new id
         transactions.append(duplicate)
-        ground_truth.append({**duplicate, "anomaly_type": "duplicate"})
+        ground_truth.append({"temp_id": duplicate["temp_id"], "anomaly_type": "duplicate"})
 
     # 3. New vendor: a one-off large expense that never appears again
     # Python creates mysterious vendor
@@ -501,9 +504,12 @@ def inject_anomalies(transactions, slug):
             "category": "other",
             "description": "Unrecognized Vendor XYZ",
             "type": "expense",
+            "temp_id": len(transactions),  # give it its own new id too
         }
         transactions.append(new_vendor_txn)
-        ground_truth.append({**new_vendor_txn, "anomaly_type": "new_vendor"})
+        ground_truth.append(
+            {"temp_id": new_vendor_txn["temp_id"], "anomaly_type": "new_vendor"}
+        )
 
     # ground_truth behave as the answer sheet
     # We save fake-weird-anomaly information in it
@@ -530,16 +536,22 @@ def main():
     }
 
     all_transactions = []
+    for slug, generator_fn in generators.items():
+        all_transactions.extend(generator_fn(slug, start_date, num_days))
+
+    # Tag every transaction with a unique id so anomalies can reference the
+    # EXACT row they came from — matching by date alone breaks for duplicate
+    # anomalies, since the duplicate shares its date with the original.
+    for i, t in enumerate(all_transactions):
+        t["temp_id"] = i
+
     all_ground_truth = []
 
-    # Go through every business.
-    for slug, generator_fn in generators.items():
-        # generator_fn means: "Whichever generator belongs to this business."
-        # So like when we're processing: restaurant_demo
-        # Python effectively does: generate_restaurant_transactions
-        business_transactions = generator_fn(slug, start_date, num_days)
-        ground_truth = inject_anomalies(business_transactions, slug)
-        all_transactions.extend(business_transactions)
+    # Now inject anomalies per business, using the already-tagged transactions
+    all_ground_truth = []
+    for business in BUSINESSES:
+        slug = business["slug"]
+        ground_truth = inject_anomalies(all_transactions, slug)
         all_ground_truth.extend(ground_truth)
 
     # Sorted in chronological, easier to read/debug

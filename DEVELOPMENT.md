@@ -133,6 +133,11 @@ This mirrors what CI runs — if these pass locally, CI should pass too.
 - **Supabase gives two connection strings.** `DATABASE_URL` (pooled,
   port 6543) is for the app; `DIRECT_URL` (unpooled, port 5432) is for
   migrations only. Mixing these up causes migration failures.
+- **Standalone scripts run via `tsx` don't auto-load `.env`.** Only
+  `npm run dev` picks up `server/.env` implicitly. Scripts like
+  `seed.ts` need `tsx --env-file=.env <script>` in their `package.json`
+  entry, or Prisma silently falls back to `127.0.0.1:5432` and fails
+  with a confusing "can't reach database" error.
 
 ## CI
 

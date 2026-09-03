@@ -36,6 +36,8 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 - Vitest picking up stale compiled test files from `dist/` (excluded via
   `vitest.config.ts`)
 
+---
+
 ## [Unreleased] — Phase 2: Authentication
 
 ### Added
@@ -49,3 +51,28 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 - Auth routes: POST /api/auth/register, /login, /refresh with httpOnly cookie handling
 - `authenticate` middleware: Bearer token verification, attaches `req.user`
 - 14 unit tests covering auth service and middleware
+
+---
+
+## [Unreleased] — Phase 3: Database & Demo Data
+
+### Added
+- Synthetic transaction generator (`ml/data/generate_demo.py`) producing
+  12 months of per-transaction data for 3 business archetypes with
+  distinct cash flow shapes (restaurant, salon, contractor)
+- Ground-truth anomaly injection (high outlier, duplicate charge, new
+  vendor) via `anomalies_ground_truth.json`, for later validation of the
+  Isolation Forest model in Phase 4
+- Idempotent seed script (`server/src/scripts/seed.ts`) mapping demo
+  business slugs to real Prisma UUIDs and linking each anomaly to its
+  exact source transaction via a `temp_id`
+- Seed script logs final row counts on success (users, businesses,
+  transactions, anomalies) for quick verification after every run
+
+### Fixed
+- Prisma silently defaulting to `127.0.0.1:5432` when Prisma-using scripts
+  are run directly via `tsx` instead of through `npm run dev` — standalone
+  scripts don't automatically load `.env`; resolved with `tsx --env-file=.env`
+- Anomaly ground-truth generation bug where `duplicate` and `new_vendor`
+  entries referenced a leftover variable from an earlier block, causing
+  `temp_id` collisions and undercounted anomalies after seeding

@@ -9,6 +9,110 @@
 
 ## Session Notes (Latest at Top)
 
+### Session 6 — Phase 3: Seed Script
+**Date:** September 2026
+**Status:** ✅ Complete
+
+**Accomplished:**
+- `server/src/scripts/seed.ts` written: creates 3 demo users (bcrypt-hashed
+  passwords via existing `hashPassword`), 3 businesses, then bulk-processes
+  `transactions.json` into Postgres via Prisma, linking anomalies to their
+  exact source transaction
+- Idempotent: `deleteAll()` scoped to only the 3 demo user emails, so
+  re-running `npm run seed` never touches real accounts
+- Business slug → real UUID mapping done via a `Record<string, number>`
+  lookup table indexing into the created `businesses` array, rather than
+  fragile positional guessing
+- `temp_id`-based anomaly linking: each transaction gets a unique numeric
+  id at generation time; `anomalies_ground_truth.json` references that id
+  directly instead of matching by date (which breaks for duplicate-charge
+  anomalies, since the duplicate shares its date with the original)
+- Own `DemoTransaction`/`DemoAnomaly` types defined locally in `seed.ts`
+  for the raw JSON shape — deliberately not reusing Prisma's `Transaction`/
+  `Anomaly` types, since those describe database rows (camelCase, has `id`),
+  not the pre-insert JSON (snake_case, has `temp_id`)
+- Added a final success log (`db.transaction.count()` / `db.anomaly.count()`)
+  so `npm run seed` visibly confirms what landed in the DB, instead of
+  going silent after the last step
+
+**Bugs found and fixed (via review, not just error messages):**
+- `businesses_id` typo in the slug lookup (would've silently skipped every
+  transaction — caught by properly typing the JSON instead of leaving it `any`)
+- `data: new Date(t["date"])` — wrong key name (`data` instead of `date`)
+  inside the Prisma `data: {}` object
+- Wrong business index copy-pasted across the original 3-block version
+  (`business[0]` used in the salon/contractor blocks) — resolved by
+  collapsing to a single loop + lookup table
+- Prisma silently defaulting to `127.0.0.1:5432` when run via `tsx` directly
+  — standalone scripts don't inherit whatever loads `.env` for `npm run dev`;
+  fixed via `tsx --env-file=.env`
+
+**Verified:** Seed output matches Python generator exactly —
+948 transactions, 9 anomalies, 3 users, 3 businesses.
+
+**Note:** `server/src/models/` (planned in `project-bible.md` §7 for
+Prisma type-reference files) remains empty as of Phase 3. Not needed yet —
+`auth.service.ts` and `seed.ts` both import Prisma types directly from
+`@prisma/client` without issue. Revisit in Phase 4 if the ML pipeline's
+output needs its own type definitions before insertion (similar to how
+`seed.ts` needed a local `DemoTransaction` type for raw JSON that didn't
+match Prisma's `Transaction` shape).
+
+**What's next:** Phase 4 — ML training pipeline (forecasting + anomaly detection)
+
+---
+
+### Session 5 — Phase 3: Demo Data Generator
+**Date:** September 2026
+**Status:** ✅ Complete
+
+**Accomplished:**
+- `ml/data/generate_demo.py` written: generates 360 days of per-transaction
+  synthetic data for 3 business archetypes with deliberately distinct cash
+  flow shapes:
+  - Restaurant: daily revenue with weekend boost, biweekly supplier payments,
+    monthly payroll/rent/utilities
+  - Salon: revenue driven almost entirely by day-of-week multiplier
+    (quiet Mon–Wed, peak Fri–Sun)
+  - Contractor: lumpy invoice-based revenue (1–3 large payments/month),
+    irregular materials purchases, occasional equipment buys
+- Recurring monthly expenses use randomized jitter (not fixed dates) to
+  simulate real-world payment irregularity
+- Anomaly injection with a separate ground-truth answer key
+  (`anomalies_ground_truth.json`, not seeded into the DB) covering 3 types:
+  high outlier (inflated recurring expense), duplicate charge, new/unknown
+  vendor — needed to later validate the Isolation Forest model against
+  known-correct answers instead of guessing if its flags look reasonable
+- `temp_id` tagging added per transaction so ground-truth entries can
+  reference the exact row they came from
+
+**Bugs found and fixed:**
+- `temp_id` tagging originally ran after anomaly injection instead of
+  before — caused a `KeyError` since `inject_anomalies` tried reading a
+  field that didn't exist yet
+- Ground-truth entries for `duplicate` and `new_vendor` anomaly types were
+  referencing a leftover `target` variable from the `high_outlier` block
+  instead of their own newly created transaction — caused two of the three
+  anomaly types per business to collide on the same `temp_id`, silently
+  losing anomaly rows downstream in `seed.ts`
+
+**Decisions made:**
+- Per-transaction rows (not daily aggregates) — required to demonstrate
+  duplicate-charge detection, which disappears if transactions are
+  pre-aggregated
+- Slug-based placeholder IDs (`"restaurant_demo"`, etc.) instead of real
+  UUIDs at generation time — `seed.ts` creates the real `Business` rows
+  and remaps slugs to UUIDs, since Python runs before any DB rows exist
+- Seasonality kept simple for v1 (no Ramadan/Lebaran modeling yet) —
+  revisit if Phase 4 backtesting shows it's needed for realism
+
+**Verified:** 948 transactions generated, 9 ground-truth anomalies
+confirmed unique via `temp_id` cross-check.
+
+**What's next:** `server/src/scripts/seed.ts`
+
+---
+
 ### Session 4 — Phase 2: Authentication
 **Date:** August 2026
 **Status:** ✅ Complete
@@ -68,6 +172,8 @@
 
 **What's next:** Documentation section of Phase 1 (this session), then Phase 2 (Authentication)
 
+---
+
 ### Session 2 — Client Scaffold + i18n
 **Date:** August 27, 2026
 **Status:** ✅ Complete
@@ -86,6 +192,8 @@
 - next-intl's own useRouter/usePathname (not next/navigation) required for cookie-based locale persistence
 
 **What's next:** Express server scaffold (Phase 1 checklist, server section)
+
+---
 
 ### Session 1 — Planning & Design Lockdown
 **Date:** August 27, 2026
@@ -273,7 +381,7 @@
   - [x] Inserts into PostgreSQL via Prisma
   - [x] Creates test users (test@example.com)
   - [x] Callable via `npm run seed`
-- [ ] **API endpoint to fetch demo data:**
+- [ ] **API endpoint to fetch demo data:** *(deferred to Phase 5 — building alongside dashboard pages)*
   - [ ] `GET /api/businesses` (list user's businesses)
   - [ ] Returns demo businesses + transaction counts
 - [x] **Verify data:**
@@ -281,7 +389,7 @@
   - [x] Each has ~360 transactions
   - [x] Date ranges correct (Jan — Dec)
   - [x] Amounts realistic (Rp values)
-- [ ] **Frontend:**
+- [ ] **Frontend:** *(deferred to Phase 5 — building alongside dashboard pages)*
   - [ ] Business selector created (shows "Warung Bu Ratna", "Toko Kopi", etc.)
   - [ ] Clicking business stores businessId in Zustand store
   - [ ] All subsequent API calls filter by businessId

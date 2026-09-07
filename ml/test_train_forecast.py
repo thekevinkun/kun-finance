@@ -7,7 +7,7 @@ just naming convention.
 """
 
 # Import the function we want to test from train.py
-from train import train_models
+from train_forecast import train_models
 
 
 def test_train_models_runs_without_error():

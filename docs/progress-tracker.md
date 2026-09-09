@@ -9,33 +9,68 @@
 
 ## Session Notes (Latest at Top)
 
-### Session 7 — Phase 4: Forecasting Data Pipeline
+### Session 7 — Phase 4: Forecast Data Pipeline
 **Date:** September 2026
-**Status:** ⏳ In progress
+**Status:** ✅ Complete (data pipeline only — model training is separate, still pending)
 
 **Accomplished:**
 - `ml/train_forecast.py` renamed from `train.py` via `git mv`, split ahead of
-  Phase 4's forecast/anomaly separation
+  Phase 4's forecast/anomaly separation; `test_train.py` renamed to
+  `test_train_forecast.py` to match
 - `query_transactions()`: SQLAlchemy connection to Postgres, per-transaction
-  fetch by business_id
-- `aggregate_daily()`: groups per-transaction rows into daily revenue/expenses/
-  net_cash_flow, columns renamed to match project-bible naming
-- `engineer_features()`: day_of_week, day_of_month, and 7/30-day lag features
-  for revenue, expenses, and net_cash_flow (all three lagged, not just net,
-  to preserve composition signal); drops rows with NaN from lag warmup
+  fetch by business_id, with lazy engine creation (`get_engine()`) so pure-
+  logic tests don't require `DATABASE_URL` to exist at import time
+- `aggregate_daily()`: groups per-transaction rows into daily revenue/
+  expenses/net_cash_flow; reindexes onto a complete calendar (via
+  `pd.date_range` + `reindex`) so dates with zero transactions appear as
+  zero rows instead of being silently absent, and guarantees both
+  revenue/expenses columns exist even if a business only ever has one
+  transaction type
+- `engineer_features()`: day_of_week, day_of_month, and 7/30-day lag
+  features for revenue, expenses, and net_cash_flow (all three lagged,
+  not just net, to preserve composition signal); drops rows with NaN
+  from lag warmup
 - `chronological_split()`: fixed 14-day validation + 14-day test windows
-  (not percentage-based), everything earlier goes to train — avoids
-  time-series leakage from random splitting
-- Tests added for `aggregate_daily`, `engineer_features`, and
-  `chronological_split` covering correct sums, correct lag shift, and
-  clean non-overlapping date boundaries between splits
+  (not percentage-based) to avoid time-series leakage from random
+  splitting; guards itself against undersized input independently of
+  `train_models`'s own check
+- `train_models()`: checks for a 90-day minimum right after
+  `aggregate_daily`, before feature engineering or splitting, and raises
+  a clear `ValueError` on insufficient data rather than proceeding
+  silently
+- Full test suite: sums/lag/split correctness, missing-calendar-date
+  handling, single-transaction-type handling, and insufficient-data
+  guard behavior
 
-**Verified:** Ran against demo restaurant business (360 raw days → 330
-usable after lag warmup → 302 train / 14 val / 14 test), confirmed no
-date-range overlap or gaps at split boundaries.
+**Bugs found and fixed (mix of self-caught and CodeRabbit-flagged):**
+- `reset_index` called without parentheses (grabbed the method object
+  instead of calling it)
+- Column naming drifted from the locked design (`income`/`expense`/`Net`
+  → renamed to `revenue`/`expenses`/`net_cash_flow`)
+- `engine = create_engine(db_url)` ran at import time, so any test
+  importing the module failed in CI where `DATABASE_URL` isn't set —
+  fixed by making engine creation lazy via `get_engine()`
+- `aggregate_daily` only produced rows for dates with transactions,
+  causing `shift(7)`/`shift(30)` to lag by row position instead of by
+  calendar day whenever a business had a day with zero activity
+- Same function crashed downstream if a business had only income or
+  only expense transactions (missing column)
+- Insufficient-data guard was accidentally dropped during a refactor
+  (replaced with a dead `try/except ValueError` that never actually
+  fires, since `engineer_features` doesn't raise) — restored and moved
+  to the correct point in the pipeline
+- CI workflow had no `permissions:` block, inheriting broader
+  `GITHUB_TOKEN` access than the test job needed
 
-**What's next:** Train the actual `GradientBoostingRegressor` (steps 6+):
-quantile-based confidence intervals, evaluation, `.pkl` export.
+**Process note:** this work initially went to `master` directly before
+being caught mid-session — moved to `feature/forecast-data-pipeline` and
+a proper PR before merging. See `CONTRIBUTING.md` for the now-explicit
+branch → PR → CI/CodeRabbit → merge → clean-branch workflow this session
+established.
+
+**What's next:** Model training — `GradientBoostingRegressor` with
+quantile-based confidence intervals, evaluation (RMSE/MAE/R²), `.pkl`
+export. `train_anomaly.py` (Isolation Forest) remains separate, later.
 
 ---
 

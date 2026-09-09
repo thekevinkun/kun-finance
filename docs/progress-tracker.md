@@ -9,6 +9,36 @@
 
 ## Session Notes (Latest at Top)
 
+### Session 7 — Phase 4: Forecasting Data Pipeline
+**Date:** September 2026
+**Status:** ⏳ In progress
+
+**Accomplished:**
+- `ml/train_forecast.py` renamed from `train.py` via `git mv`, split ahead of
+  Phase 4's forecast/anomaly separation
+- `query_transactions()`: SQLAlchemy connection to Postgres, per-transaction
+  fetch by business_id
+- `aggregate_daily()`: groups per-transaction rows into daily revenue/expenses/
+  net_cash_flow, columns renamed to match project-bible naming
+- `engineer_features()`: day_of_week, day_of_month, and 7/30-day lag features
+  for revenue, expenses, and net_cash_flow (all three lagged, not just net,
+  to preserve composition signal); drops rows with NaN from lag warmup
+- `chronological_split()`: fixed 14-day validation + 14-day test windows
+  (not percentage-based), everything earlier goes to train — avoids
+  time-series leakage from random splitting
+- Tests added for `aggregate_daily`, `engineer_features`, and
+  `chronological_split` covering correct sums, correct lag shift, and
+  clean non-overlapping date boundaries between splits
+
+**Verified:** Ran against demo restaurant business (360 raw days → 330
+usable after lag warmup → 302 train / 14 val / 14 test), confirmed no
+date-range overlap or gaps at split boundaries.
+
+**What's next:** Train the actual `GradientBoostingRegressor` (steps 6+):
+quantile-based confidence intervals, evaluation, `.pkl` export.
+
+---
+
 ### Session 6 — Phase 3: Seed Script
 **Date:** September 2026
 **Status:** ✅ Complete
@@ -137,6 +167,8 @@ confirmed unique via `temp_id` cross-check.
 - Frontend auth (Zustand, login/register pages) deferred to Phase 5 when pages are built
 
 **What's next:** Phase 3 — Demo Data
+
+---
 
 ### Session 3 — Server Scaffold, Prisma, CI/CD
 **Date:** August 28, 2026

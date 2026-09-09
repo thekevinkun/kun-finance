@@ -83,4 +83,6 @@ jobs:
 
       - name: Test
         working-directory: ml
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pytest

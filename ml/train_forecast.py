@@ -1,12 +1,14 @@
 """
-train_forecast.py — for the model training pipeline.
+train_forecast.py — Data preparation pipeline for cash flow forecasting.
 
-Purpose: Load transaction data, engineer features,
-train a Gradient Boosting Regressor (forecasting),
-then save as .pkl files.
+Purpose: Load per-transaction data, aggregate into daily revenue/expenses/
+net_cash_flow, engineer time-series features (day-of-week, day-of-month,
+lag features), and split chronologically into train/validation/test sets.
+Model training (Gradient Boosting Regressor) is not yet implemented — see
+Phase 4 checklist in progress-tracker.md.
 
 Accepts a --business argument so it can be run per-business,
-e.g. `python train.py --business demo_restaurant`.
+e.g. `python train_forecast.py --business demo_restaurant`.
 """
 
 # a command used to load the built-in os module,
@@ -31,6 +33,7 @@ from sqlalchemy import create_engine, text
 
 # Load the environment variables from the .env file
 load_dotenv()
+
 
 # Create a SQLAlchemy engine to connect to the database
 def get_engine():
@@ -68,12 +71,33 @@ def query_transactions(business_id: str):
 
 ## 3. aggregate_daily to sum income - expenses to find net cash flow
 def aggregate_daily(df: pd.DataFrame):
+    # Convert the 'date' column to datetime format
+    df["date"] = pd.to_datetime(df["date"])
+
     # get transacation by day with income-expenses (Jan1/Jan2)
     # group by business_id and date, sum income and expense separately
     # turn type of income and expense into individual column
     summary = df.groupby(["date", "type"])["amount"].sum().unstack(fill_value=0)
 
     # print("Summary GROUP BY: ", summary)
+
+    # Create complete date range from min to max date in the DataFrame
+    full_date_range = pd.date_range(
+        start=summary.index.min(), end=summary.index.max(), freq="D"
+    )
+
+    # Fill missing dates with 0 for income and expense
+    summary = summary.reindex(full_date_range, fill_value=0)
+
+    # Set the date column as the index
+    # This because pd.date_range(...) produces an index with no .name
+    summary.index.name = "date"
+
+    # Makes sure income + expense columns exist even if they were not present in the original data
+    if "income" not in summary.columns:
+        summary["income"] = 0
+    if "expense" not in summary.columns:
+        summary["expense"] = 0
 
     # Add and calculate net cash flow
     # Give the income as revenue column substract by expense as expenses column
@@ -155,6 +179,15 @@ def chronological_split(df: pd.DataFrame):
     total_len = len(df)  # Get the len of usable days
     # print("Total len: ", total_len)
 
+    # Check if there are enough rows to split into train, validation, and test sets
+    # both holdout windows + at least 1 row to train on
+    min_required = test_days * 2 + 1
+    if total_len < min_required:
+        raise ValueError(
+            f"Not enough rows to split: {total_len} available, "
+            f"{min_required} required for {test_days}-day validation and test windows."
+        )
+
     train_end = (
         total_len - test_days * 2
     )  # eg. 330 usable days. 330 - 14*2 = train end at day/row 302
@@ -180,6 +213,11 @@ def chronological_split(df: pd.DataFrame):
 
 ## 6. train models
 def train_models(business_id: str):
+    # Minimum number of days required to train the model, including:
+    # 30 days for lag warmup, 28 days for validation/test holdouts,
+    # and a usable training window of at least 32 days (to have enough data to train the model)
+    MIN_DAYS_REQUIRED = 90
+
     # Get the transactions of the business
     transactions = query_transactions(business_id)
     # print("Transactions: ", transactions)
@@ -191,7 +229,15 @@ def train_models(business_id: str):
     aggregate_transactions = aggregate_daily(transactions_df)
     # print("Aggregate: ", aggregate_transactions)
 
-    # Engineer features for the model
+    # Check whether enough data exists to create lag features
+    if len(aggregate_transactions) < MIN_DAYS_REQUIRED:
+        raise ValueError(
+            f"Not enough data to train business {business_id}: "
+            f"{len(aggregate_transactions)} days available, {MIN_DAYS_REQUIRED} required "
+            f"(30 for lag warmup + 28 for validation/test holdouts + a usable training window)."
+        )
+
+    # Engineer features (lags, day-of-week, day-of-month)
     transactions_features = engineer_features(aggregate_transactions)
 
     # Split the data into train, validation, and test sets

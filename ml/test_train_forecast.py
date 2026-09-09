@@ -6,6 +6,9 @@ function inside it named test_*. No imports or registration needed —
 just naming convention.
 """
 
+# a command used to load the built-in os module,
+import pytest
+
 # Used for data manipulation, cleaning, and analysis
 import pandas as pd
 
@@ -45,6 +48,35 @@ def test_aggregate_daily_sums_income_and_expenses():
     assert jan1["revenue"] == 150
     assert jan1["expenses"] == 30
     assert jan1["net_cash_flow"] == 120
+
+
+# Test to check whether aggregate_daily fills in missing calendar dates with zero values
+def test_aggregate_daily_fills_missing_calendar_date():
+    df = pd.DataFrame(
+        [
+            {"date": "2024-01-01", "amount": 100, "type": "income"},
+            {
+                "date": "2024-01-03",
+                "amount": 200,
+                "type": "income",
+            },  # Jan 2 has no transactions
+        ]
+    )
+    result = aggregate_daily(df)
+    assert (
+        len(result) == 3
+    )  # Jan 1, 2, 3 — Jan 2 must appear as a zero row, not be missing
+    jan2 = result[result["date"] == "2024-01-02"].iloc[0]
+    assert jan2["revenue"] == 0
+    assert jan2["net_cash_flow"] == 0
+
+
+# Test to check whether aggregate_daily handles income-only days correctly
+def test_aggregate_daily_handles_income_only():
+    df = pd.DataFrame([{"date": "2024-01-01", "amount": 100, "type": "income"}])
+    result = aggregate_daily(df)
+    assert "expenses" in result.columns
+    assert result.iloc[0]["expenses"] == 0
 
 
 # Test to check whether engineer_features() creates the lag correctly
@@ -95,3 +127,17 @@ def test_chronological_split_sizes_and_order():
     # no overlap, no gaps at the boundaries
     assert train["date"].max() < val["date"].min()
     assert val["date"].max() < test["date"].min()
+
+
+# Test to check whether chronological_split() raises an error when there are insufficient rows
+def test_chronological_split_raises_on_insufficient_rows():
+    # Create a sample DataFrame with only 20 days of data, which is insufficient for the required splits
+    df = pd.DataFrame(
+        {
+            "date": pd.date_range("2024-01-01", periods=20),
+            "net_cash_flow": range(20),
+        }
+    )
+    # Expect a ValueError to be raised due to insufficient rows for splitting
+    with pytest.raises(ValueError):
+        chronological_split(df)

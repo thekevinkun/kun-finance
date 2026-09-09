@@ -438,12 +438,12 @@ confirmed unique via `temp_id` cross-check.
 **Checklist:**
 
 - [ ] **Forecasting model:**
-  - [ ] `ml/train_forecast.py` loads transactions for a business
-  - [ ] Feature engineering:
-    - [ ] Day of month, month, day of week, is_weekend
-    - [ ] Lagged features (revenue from 7 days ago, 30 days ago)
+  - [x] `ml/train_forecast.py` loads transactions for a business
+  - [x] Feature engineering:
+    - [x] Day of month, month, day of week, is_weekend
+    - [x] Lagged features (revenue from 7 days ago, 30 days ago)
     - [ ] Seasonality indicators (is_monsoon, is_holiday)
-  - [ ] Splits data: 80% train, 10% validate, 10% test
+  - [x] Splits data chronologically: fixed 14-day validation + 14-day test windows, remainder to train (not percentage-based — avoids time-series leakage)
   - [ ] Trains Gradient Boosting Regressor (from scikit-learn)
   - [ ] Evaluates on test set: RMSE, MAE, R²
   - [ ] Generates 30-day forecast (daily predictions + confidence intervals)

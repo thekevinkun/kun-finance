@@ -28,18 +28,29 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 
 ## 1. Load env + connect to DB
+
 # Load the environment variables from the .env file
 load_dotenv()
 
-# Access the variables
-db_url = os.getenv("DATABASE_URL")
+# Create a SQLAlchemy engine to connect to the database
+def get_engine():
+    """Create a SQLAlchemy engine on demand, not at import time.
 
-# Establish the connection with SQL Alchemy engine
-engine = create_engine(db_url)
+    Keeping this lazy means importing this module — which pytest does just to
+    discover tests — never requires DATABASE_URL to exist. The engine is only
+    built when something that actually needs the DB (query_transactions) runs.
+    """
+    db_url = os.getenv("DATABASE_URL")
+    if db_url is None:
+        raise RuntimeError("DATABASE_URL is not set — check your .env file")
+    return create_engine(db_url)
 
 
 ## 2. query_transactions(business_id) -> raw per-transaction rows
 def query_transactions(business_id: str):
+    # Connect to the database
+    engine = get_engine()
+
     # Define the raw SQL query with parameterized placholder
     query = text("""
         SELECT date, amount, type 

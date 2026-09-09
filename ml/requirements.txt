@@ -6,3 +6,6 @@ pandas==2.2.3         # DataFrame library — like a spreadsheet you can code ag
 numpy==1.26.4         # Numerical arrays; pandas and scikit-learn are built on top of this
 openai==1.54.0        # OpenAI API client, for the advice-generation LLM calls (Phase 7)
 pytest==8.3.3         # Testing framework for the ML pipeline
+python-dotenv         # Industry standard for managing configurations and protecting sensitive credentials like API keys
+sqlalchemy            # Open-source database toolkit and Object-Relational Mapper (ORM) for Python
+psycopg2-binary       # To help SQLAlchemy to talk to PostgreSQL
